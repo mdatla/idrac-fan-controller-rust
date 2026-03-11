@@ -214,6 +214,7 @@ The controller automatically restores Dell default fan control when:
 ## 📖 Documentation
 
 - [START_HERE.md](_docs/START_HERE.md) - Quick 8-step guide
+- [DOCKER_IMAGES.md](_docs/DOCKER_IMAGES.md) - Image tags, versions, and troubleshooting
 - [MANUAL_WORKFLOW.md](_docs/MANUAL_WORKFLOW.md) - Build → Docker Hub → Unraid
 - [SAFE_TESTING.md](_docs/SAFE_TESTING.md) - 6-level testing strategy
 - [UNRAID_SETUP.md](_docs/UNRAID_SETUP.md) - Unraid-specific guide
@@ -223,20 +224,27 @@ The controller automatically restores Dell default fan control when:
 
 ## 🐛 Troubleshooting
 
+**Container exits immediately with no logs?**
+- Pull a fresh image: `docker pull maanstr/idrac-fan-controller-rust:latest`
+- If issue persists, use `:stable` tag as fallback
+- See [DOCKER_IMAGES.md](_docs/DOCKER_IMAGES.md) for detailed troubleshooting
+
 **Container won't start?**
 - Check iDRAC is reachable: `ping YOUR_IDRAC_IP`
 - Verify IPMI over LAN is enabled in iDRAC settings
 - Check credentials are correct
+- View logs: `docker logs idrac-fan-controller`
 
 **No temperature readings?**
 - Check logs: `docker logs idrac-fan-controller`
 - Verify iDRAC firmware version (must be < 3.30.30.30)
+- Ensure IPMI over LAN is enabled
 
 **Fans too loud/quiet?**
 - Adjust `BASE_TEMP`, `CRITICAL_TEMP`, `CURVE_STEEPNESS`
 - See tuning guide above
 
-See [SAFE_TESTING.md](_docs/SAFE_TESTING.md) for more troubleshooting.
+See [SAFE_TESTING.md](_docs/SAFE_TESTING.md) and [DOCKER_IMAGES.md](_docs/DOCKER_IMAGES.md) for more troubleshooting.
 
 ## 🤝 Contributing
 
@@ -263,9 +271,20 @@ This Rust rewrite maintains compatibility with the original project's Creative C
 
 Available at: https://hub.docker.com/r/maanstr/idrac-fan-controller-rust
 
+**Available tags:**
+- `:latest` - Latest stable build (recommended)
+- `:stable` - Known-good fallback version
+- `:main` - Tracks main branch
+
 ```bash
+# Normal use
 docker pull maanstr/idrac-fan-controller-rust:latest
+
+# Fallback if issues occur
+docker pull maanstr/idrac-fan-controller-rust:stable
 ```
+
+See [DOCKER_IMAGES.md](_docs/DOCKER_IMAGES.md) for detailed information about tags and troubleshooting.
 
 ## 🔗 Links
 

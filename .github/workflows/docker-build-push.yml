@@ -1,3 +1,19 @@
+# Build and Push Docker Image
+#
+# This workflow builds the Docker image for AMD64 architecture and pushes to Docker Hub.
+#
+# Build Configuration:
+#   - Platform: linux/amd64 only (ARM64 disabled due to cross-compilation issues)
+#   - Cache: Disabled to ensure clean, reliable builds
+#   - Triggers: Push to main branch, version tags, and pull requests
+#
+# Known Issues Resolved:
+#   - Multi-platform builds (amd64+arm64) with buildx produced non-functional binaries
+#   - GitHub Actions cache was corrupting Rust builds
+#   - Solution: Single platform (amd64), no cache
+#
+# See _docs/DOCKER_IMAGES.md for more details.
+
 name: Build and Push Docker Image
 
 on:

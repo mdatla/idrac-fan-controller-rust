@@ -11,6 +11,7 @@ Complete documentation for the Dell iDRAC Fan Controller - Rust Edition.
 
 ## 🔧 Installation & Deployment
 
+- **[DOCKER_IMAGES.md](DOCKER_IMAGES.md)** - Image tags, versions, and troubleshooting
 - **[MANUAL_WORKFLOW.md](MANUAL_WORKFLOW.md)** - Build → Docker Hub → Unraid workflow
 - **[UNRAID_SETUP.md](UNRAID_SETUP.md)** - Unraid-specific installation guide
 - **[DOCKER_HUB_PUBLISH.md](DOCKER_HUB_PUBLISH.md)** - Publishing to Docker Hub
@@ -51,3 +52,6 @@ Complete documentation for the Dell iDRAC Fan Controller - Rust Edition.
 
 ### "I'm setting up GitHub protections"
 → [RULESET_README.md](RULESET_README.md)
+
+### "I'm having Docker image issues"
+→ [DOCKER_IMAGES.md](DOCKER_IMAGES.md)
