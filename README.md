@@ -75,7 +75,18 @@ services:
 
 ### Unraid
 
-See [UNRAID_SETUP.md](UNRAID_SETUP.md) for detailed instructions.
+**Quick Install (Recommended):**
+
+1. Go to **Docker** → **Add Container**
+2. Click **"Template URL"** dropdown at the top
+3. Paste: `https://raw.githubusercontent.com/mdatla/idrac-fan-controller-rust/main/unraid/idrac-fan-controller-rust.xml`
+4. Change `IDRAC_HOST` to your iDRAC IP
+5. Change `IDRAC_PASSWORD` if needed
+6. Click **Apply**
+
+All variables are pre-configured with sensible defaults!
+
+See [UNRAID_SETUP.md](_docs/UNRAID_SETUP.md) for detailed instructions.
 
 ## ⚙️ Configuration
 
