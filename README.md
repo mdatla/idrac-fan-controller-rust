@@ -257,6 +257,7 @@ This Rust rewrite maintains compatibility with the original project's Creative C
 - Original project by [tigerblue77](https://github.com/tigerblue77)
 - Inspired by the need for smoother fan control
 - Built with Rust for performance and reliability
+- Built with help from opencode
 
 ## 📦 Docker Hub
 
