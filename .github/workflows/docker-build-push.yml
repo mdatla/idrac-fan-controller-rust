@@ -48,16 +48,17 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (AMD64 only for now)
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Disable cache temporarily to match working local build
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
 
       # Docker Hub Description sync disabled - update manually on Docker Hub if needed
       # Uncomment below and ensure DOCKERHUB_TOKEN has Read & Write permissions
