@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  idrac_fan_controller:
+    build: .
+    container_name: idrac_fan_controller_rust
+    restart: unless-stopped
+    environment:
+      # Connection settings
+      - IDRAC_HOST=local  # Change to IP address for remote iDRAC
+      - IDRAC_USERNAME=root
+      - IDRAC_PASSWORD=calvin
+      
+      # Fan curve settings
+      - MIN_FAN_SPEED=5        # Minimum fan speed (%)
+      - MAX_FAN_SPEED=100      # Maximum fan speed (%)
+      - BASE_TEMP=40           # Temperature for min fan speed (°C)
+      - CRITICAL_TEMP=70       # Temperature for max fan speed (°C)
+      - CURVE_STEEPNESS=0.15   # Exponential curve steepness (higher = steeper)
+      
+      # Other settings
+      - CHECK_INTERVAL=60
+      - DISABLE_THIRD_PARTY_PCIE_CARD_DELL_DEFAULT_COOLING_RESPONSE=false
+      - KEEP_THIRD_PARTY_PCIE_CARD_COOLING_RESPONSE_STATE_ON_EXIT=false
+      
+      # Logging
+      - RUST_LOG=info
+    
+    # Uncomment for local iDRAC access
+    devices:
+      - /dev/ipmi0:/dev/ipmi0:rw
+    
+    # Uncomment for custom network (remote iDRAC)
+    # network_mode: host
