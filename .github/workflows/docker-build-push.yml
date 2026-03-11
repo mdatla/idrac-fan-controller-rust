@@ -59,12 +59,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Docker Hub Description
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        uses: peter-evans/dockerhub-description@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: ${{ env.IMAGE_NAME }}
-          short-description: "Dell iDRAC Fan Controller with Exponential Curve - Rust Edition"
-          readme-filepath: ./README.md
+      # Docker Hub Description sync disabled - update manually on Docker Hub if needed
+      # Uncomment below and ensure DOCKERHUB_TOKEN has Read & Write permissions
+      # - name: Docker Hub Description
+      #   if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      #   uses: peter-evans/dockerhub-description@v4
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #     repository: ${{ env.IMAGE_NAME }}
+      #     short-description: "Dell iDRAC Fan Controller with Exponential Curve - Rust Edition"
+      #     readme-filepath: ./README.md
