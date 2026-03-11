@@ -1,27 +1,10 @@
 # Branch Protection Ruleset
 
-This directory contains a GitHub ruleset for protecting the `main` branch.
+The `main` branch is protected using GitHub Rulesets.
 
-## How to Import
+## View Current Protection
 
-### Option 1: GitHub Web UI (Easiest)
-
-1. Go to: https://github.com/mdatla/idrac-fan-controller-rust/settings/rules
-2. Click **"New ruleset"** → **"Import a ruleset"**
-3. Upload the file: `.github/branch-protection-ruleset.json`
-4. Review the settings
-5. Click **"Create"**
-
-### Option 2: GitHub CLI
-
-```bash
-gh api \
-  --method POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "X-GitHub-Api-Version: 2022-11-28" \
-  /repos/mdatla/idrac-fan-controller-rust/rulesets \
-  --input .github/branch-protection-ruleset.json
-```
+Active ruleset: https://github.com/mdatla/idrac-fan-controller-rust/settings/rules
 
 ## What This Ruleset Does
 
