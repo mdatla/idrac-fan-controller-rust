@@ -7,8 +7,8 @@
   <MyIP/>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/maanstr/Dell_iDRAC_fan_controller_Docker/issues</Support>
-  <Project>https://github.com/maanstr/Dell_iDRAC_fan_controller_Docker</Project>
+  <Support>https://github.com/mdatla/idrac-fan-controller-rust/issues</Support>
+  <Project>https://github.com/mdatla/idrac-fan-controller-rust</Project>
   <Overview>
     Dell iDRAC Fan Controller with Exponential Curve - Rust Edition
     
@@ -21,14 +21,14 @@
     - Auto-restore Dell default fan control on exit
     - Low resource usage (~0.1% CPU, ~5MB RAM)
     
-    IMPORTANT: Read SAFE_TESTING.md before first use!
+    IMPORTANT: Read documentation before first use!
     
     Compatible with Dell PowerEdge servers with iDRAC firmware &amp;lt; 3.30.30.30
   </Overview>
   <Category>Tools:</Category>
   <WebUI/>
-  <TemplateURL>https://raw.githubusercontent.com/maanstr/Dell_iDRAC_fan_controller_Docker/main/rust-version/unraid/idrac-fan-controller-rust.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/maanstr/Dell_iDRAC_fan_controller_Docker/main/rust-version/unraid/icon.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/mdatla/idrac-fan-controller-rust/main/unraid/idrac-fan-controller-rust.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/mdatla/idrac-fan-controller-rust/main/unraid/icon.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
@@ -39,8 +39,8 @@
   <Config Name="iDRAC Host" Target="IDRAC_HOST" Default="192.168.1.100" Mode="" Description="iDRAC IP address or 'local' for local IPMI device" Type="Variable" Display="always" Required="true" Mask="false">192.168.1.100</Config>
   <Config Name="iDRAC Username" Target="IDRAC_USERNAME" Default="root" Mode="" Description="iDRAC username (not needed for local mode)" Type="Variable" Display="always" Required="false" Mask="false">root</Config>
   <Config Name="iDRAC Password" Target="IDRAC_PASSWORD" Default="calvin" Mode="" Description="iDRAC password (not needed for local mode)" Type="Variable" Display="always" Required="false" Mask="true">calvin</Config>
-  <Config Name="Minimum Fan Speed" Target="MIN_FAN_SPEED" Default="5" Mode="" Description="Minimum fan speed percentage (0-100)" Type="Variable" Display="always" Required="true" Mask="false">5</Config>
-  <Config Name="Maximum Fan Speed" Target="MAX_FAN_SPEED" Default="100" Mode="" Description="Maximum fan speed percentage (0-100)" Type="Variable" Display="always" Required="true" Mask="false">100</Config>
+  <Config Name="Minimum Fan Speed" Target="MIN_FAN_SPEED" Default="10" Mode="" Description="Minimum fan speed percentage (0-100). Recommended: 10% for balance of quiet and cooling." Type="Variable" Display="always" Required="true" Mask="false">10</Config>
+  <Config Name="Maximum Fan Speed" Target="MAX_FAN_SPEED" Default="80" Mode="" Description="Maximum fan speed percentage (0-100). Recommended: 80% (100% can be loud)." Type="Variable" Display="always" Required="true" Mask="false">80</Config>
   <Config Name="Base Temperature" Target="BASE_TEMP" Default="40" Mode="" Description="Temperature (°C) where minimum fan speed is applied" Type="Variable" Display="always" Required="true" Mask="false">40</Config>
   <Config Name="Critical Temperature" Target="CRITICAL_TEMP" Default="70" Mode="" Description="Temperature (°C) where maximum fan speed is applied" Type="Variable" Display="always" Required="true" Mask="false">70</Config>
   <Config Name="Curve Steepness" Target="CURVE_STEEPNESS" Default="0.15" Mode="" Description="Exponential curve steepness (higher = more aggressive, typical range 0.1-0.3)" Type="Variable" Display="always" Required="true" Mask="false">0.15</Config>
