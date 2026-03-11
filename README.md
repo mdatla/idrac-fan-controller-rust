@@ -202,12 +202,13 @@ The controller automatically restores Dell default fan control when:
 
 ## 📖 Documentation
 
-- [START_HERE.md](START_HERE.md) - Quick 8-step guide
-- [MANUAL_WORKFLOW.md](MANUAL_WORKFLOW.md) - Build → Docker Hub → Unraid
-- [SAFE_TESTING.md](SAFE_TESTING.md) - 6-level testing strategy
-- [UNRAID_SETUP.md](UNRAID_SETUP.md) - Unraid-specific guide
-- [COMPARISON.md](COMPARISON.md) - Detailed comparison with original
-- [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) - Technical overview
+- [START_HERE.md](_docs/START_HERE.md) - Quick 8-step guide
+- [MANUAL_WORKFLOW.md](_docs/MANUAL_WORKFLOW.md) - Build → Docker Hub → Unraid
+- [SAFE_TESTING.md](_docs/SAFE_TESTING.md) - 6-level testing strategy
+- [UNRAID_SETUP.md](_docs/UNRAID_SETUP.md) - Unraid-specific guide
+- [COMPARISON.md](_docs/COMPARISON.md) - Detailed comparison with original
+- [PROJECT_SUMMARY.md](_docs/PROJECT_SUMMARY.md) - Technical overview
+- [Branch Protection Ruleset](_docs/RULESET_README.md) - GitHub ruleset configuration
 
 ## 🐛 Troubleshooting
 
@@ -224,12 +225,12 @@ The controller automatically restores Dell default fan control when:
 - Adjust `BASE_TEMP`, `CRITICAL_TEMP`, `CURVE_STEEPNESS`
 - See tuning guide above
 
-See [SAFE_TESTING.md](SAFE_TESTING.md) for more troubleshooting.
+See [SAFE_TESTING.md](_docs/SAFE_TESTING.md) for more troubleshooting.
 
 ## 🤝 Contributing
 
 Contributions welcome! Please:
-1. Test thoroughly (see [SAFE_TESTING.md](SAFE_TESTING.md))
+1. Test thoroughly (see [SAFE_TESTING.md](_docs/SAFE_TESTING.md))
 2. Add unit tests for new features
 3. Update documentation
 4. Ensure backwards compatibility
