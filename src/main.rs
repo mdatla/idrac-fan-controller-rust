@@ -27,8 +27,10 @@ struct Controller {
 
 impl Controller {
     async fn new(config: Config) -> Result<Self> {
+        info!("Initializing IPMI client...");
         let client = IpmiClient::new(&config).context("Failed to initialize IPMI client")?;
 
+        info!("Getting server information...");
         let server_info = client
             .get_server_info()
             .context("Failed to get server information")?;
