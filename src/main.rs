@@ -135,12 +135,12 @@ impl Controller {
         let desired_fan_speed = calculate_fan_speed(smoothed_temp, &self.config);
 
         // Detect emergency temperature spike
-        let is_emergency = if let Some(last) = self.last_temp {
-            (max_cpu_temp - last).abs() as f64 >= self.config.emergency_temp_delta
+        let (is_emergency, temp_spike) = if let Some(last) = self.last_temp {
+            let spike = (max_cpu_temp - last).abs();
+            (spike as f64 >= self.config.emergency_temp_delta, spike)
         } else {
-            false
+            (false, 0)
         };
-        self.last_temp = Some(max_cpu_temp);
 
         // Check if enough time has passed since last change
         let time_since_last_change = self.last_change_time
@@ -169,11 +169,14 @@ impl Controller {
             self.last_change_time = Some(Instant::now());
             
             if is_emergency {
-                update_reason = format!("Emergency ({}°C spike)", (max_cpu_temp - self.last_temp.unwrap_or(max_cpu_temp)).abs());
+                update_reason = format!("Emergency ({}°C spike)", temp_spike);
             } else {
                 update_reason = "Fan speed adjusted".to_string();
             }
         }
+
+        // Update last temperature for next iteration
+        self.last_temp = Some(max_cpu_temp);
 
         // Print current status
         self.print_status(&temps, desired_fan_speed, smoothed_temp, &update_reason);
