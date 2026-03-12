@@ -45,33 +45,55 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
+      - name: Extract metadata (tags, labels) for PRs
+        if: github.event_name == 'pull_request'
+        id: meta-pr
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=beta
+
+      - name: Extract metadata (tags, labels) for main branch
+        if: github.event_name != 'pull_request'
+        id: meta-main
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image (AMD64 only for now)
+      - name: Build and push Docker image for PRs (:beta tag)
+        if: github.event_name == 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: ${{ steps.meta-pr.outputs.tags }}
+          labels: ${{ steps.meta-pr.outputs.labels }}
+          # Disable cache temporarily to match working local build
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
+
+      - name: Build and push Docker image for main (:latest tag)
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta-main.outputs.tags }}
+          labels: ${{ steps.meta-main.outputs.labels }}
           # Disable cache temporarily to match working local build
           # cache-from: type=gha
           # cache-to: type=gha,mode=max

@@ -18,6 +18,12 @@ services:
       - CRITICAL_TEMP=70       # Temperature for max fan speed (°C)
       - CURVE_STEEPNESS=0.15   # Exponential curve steepness (higher = steeper)
       
+      # Smoothing and rate limiting settings
+      - TEMP_SMOOTHING_WINDOW=3    # Number of readings to average (default: 3)
+      - MIN_CHANGE_INTERVAL=60     # Minimum seconds between fan changes (default: 60)
+      - EMERGENCY_TEMP_DELTA=10    # Temp spike (°C) that overrides min interval (default: 10)
+      - HYSTERESIS_PERCENT=5       # Fan % change needed to trigger (default: 5)
+      
       # Other settings
       - CHECK_INTERVAL=60
       - DISABLE_THIRD_PARTY_PCIE_CARD_DELL_DEFAULT_COOLING_RESPONSE=false

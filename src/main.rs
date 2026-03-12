@@ -4,7 +4,8 @@ mod ipmi;
 
 use anyhow::{Context, Result};
 use log::{error, info, warn};
-use std::time::Duration;
+use std::collections::VecDeque;
+use std::time::{Duration, Instant};
 use tokio::time;
 
 use config::Config;
@@ -16,6 +17,12 @@ struct Controller {
     client: IpmiClient,
     server_info: ServerInfo,
     last_fan_speed: Option<u8>,
+    // Temperature smoothing buffer (rolling window)
+    temp_history: VecDeque<i32>,
+    // Track last temperature for emergency spike detection
+    last_temp: Option<i32>,
+    // Track when we last changed fan speed
+    last_change_time: Option<Instant>,
 }
 
 impl Controller {
@@ -37,6 +44,12 @@ impl Controller {
         info!("  Critical temperature: {}°C", config.critical_temp);
         info!("  Curve steepness: {}", config.curve_steepness);
         info!("  Check interval: {}s", config.check_interval);
+        info!("");
+        info!("Smoothing and rate limiting:");
+        info!("  Temperature smoothing window: {} readings", config.temp_smoothing_window);
+        info!("  Minimum change interval: {}s", config.min_change_interval);
+        info!("  Emergency temp delta: {}°C", config.emergency_temp_delta);
+        info!("  Hysteresis: ±{}%", config.hysteresis_percent);
         info!("");
 
         if server_info.manufacturer != "DELL" {
@@ -66,6 +79,9 @@ impl Controller {
             client,
             server_info,
             last_fan_speed: None,
+            temp_history: VecDeque::new(),
+            last_temp: None,
+            last_change_time: None,
         })
     }
 
@@ -101,15 +117,47 @@ impl Controller {
         // Calculate maximum CPU temperature
         let max_cpu_temp = get_max_cpu_temp(temps.cpu1, temps.cpu2);
 
-        // Calculate desired fan speed using exponential curve
-        let desired_fan_speed = calculate_fan_speed(max_cpu_temp as f64, &self.config);
+        // Add current temperature to smoothing buffer
+        self.temp_history.push_back(max_cpu_temp);
+        if self.temp_history.len() > self.config.temp_smoothing_window {
+            self.temp_history.pop_front();
+        }
 
-        // Only update if fan speed changed (with hysteresis of ±2%)
-        let should_update = match self.last_fan_speed {
-            None => true,
-            Some(last) => (desired_fan_speed as i16 - last as i16).abs() >= 2,
+        // Calculate smoothed temperature (average of buffer)
+        let smoothed_temp = if self.temp_history.is_empty() {
+            max_cpu_temp as f64
+        } else {
+            let sum: i32 = self.temp_history.iter().sum();
+            sum as f64 / self.temp_history.len() as f64
         };
 
+        // Calculate desired fan speed using exponential curve with smoothed temperature
+        let desired_fan_speed = calculate_fan_speed(smoothed_temp, &self.config);
+
+        // Detect emergency temperature spike
+        let is_emergency = if let Some(last) = self.last_temp {
+            (max_cpu_temp - last).abs() as f64 >= self.config.emergency_temp_delta
+        } else {
+            false
+        };
+        self.last_temp = Some(max_cpu_temp);
+
+        // Check if enough time has passed since last change
+        let time_since_last_change = self.last_change_time
+            .map(|t| t.elapsed().as_secs())
+            .unwrap_or(u64::MAX);
+        
+        let min_interval_elapsed = time_since_last_change >= self.config.min_change_interval;
+
+        // Determine if we should update fan speed
+        let hysteresis_met = match self.last_fan_speed {
+            None => true,
+            Some(last) => (desired_fan_speed as i16 - last as i16).abs() >= self.config.hysteresis_percent as i16,
+        };
+
+        let should_update = hysteresis_met && (min_interval_elapsed || is_emergency);
+
+        let mut update_reason = String::new();
         if should_update {
             self.client
                 .set_manual_fan_control()
@@ -118,10 +166,17 @@ impl Controller {
                 .set_fan_speed(desired_fan_speed)
                 .context("Failed to set fan speed")?;
             self.last_fan_speed = Some(desired_fan_speed);
+            self.last_change_time = Some(Instant::now());
+            
+            if is_emergency {
+                update_reason = format!("Emergency ({}°C spike)", (max_cpu_temp - self.last_temp.unwrap_or(max_cpu_temp)).abs());
+            } else {
+                update_reason = "Fan speed adjusted".to_string();
+            }
         }
 
         // Print current status
-        self.print_status(&temps, desired_fan_speed, should_update);
+        self.print_status(&temps, desired_fan_speed, smoothed_temp, &update_reason);
 
         *line_counter += 1;
 
@@ -139,10 +194,10 @@ impl Controller {
         if has_exhaust {
             print!("  Exhaust");
         }
-        println!("  Fan Speed  Comment");
+        println!("  Smoothed  Fan Speed  Comment");
     }
 
-    fn print_status(&self, temps: &Temperatures, fan_speed: u8, updated: bool) {
+    fn print_status(&self, temps: &Temperatures, fan_speed: u8, smoothed_temp: f64, update_reason: &str) {
         let now = chrono::Local::now();
         let timestamp = now.format("%d-%m-%Y %T");
 
@@ -160,10 +215,11 @@ impl Controller {
             print!("       -");
         }
 
+        print!("    {:5.1}°C", smoothed_temp);
         print!("      {:3}%", fan_speed);
 
-        if updated {
-            print!("  Fan speed adjusted");
+        if !update_reason.is_empty() {
+            print!("  {}", update_reason);
         } else {
             print!("  -");
         }
