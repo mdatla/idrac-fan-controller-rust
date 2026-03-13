@@ -86,7 +86,7 @@ jobs:
             echo "ERROR: Pulled image is $ARCH, expected amd64!"
             exit 1
           fi
-          echo "✅ Verified :beta is AMD64"
+          echo "Verified :beta is AMD64"
 
       - name: Verify pushed image (main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -98,4 +98,4 @@ jobs:
             echo "ERROR: Pulled image is $ARCH, expected amd64!"
             exit 1
           fi
-          echo "✅ Verified :latest is AMD64"
+          echo "Verified :latest is AMD64"
