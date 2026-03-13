@@ -86,6 +86,14 @@ jobs:
           # Disable cache temporarily to match working local build
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Verify AMD64 platform (PRs)
+        if: github.event_name == 'pull_request'
+        run: |
+          docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:beta
+          docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:beta | grep -q "Platform.*linux/amd64" || \
+            (echo "ERROR: Image is not AMD64!" && exit 1)
 
       - name: Build and push Docker image for main (:latest tag)
         if: github.event_name != 'pull_request'
@@ -101,6 +109,14 @@ jobs:
           # Disable cache temporarily to match working local build
           # cache-from: type=gha
           # cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Verify AMD64 platform (main)
+        if: github.event_name != 'pull_request'
+        run: |
+          docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:latest
+          docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:latest | grep -q "Platform.*linux/amd64" || \
+            (echo "ERROR: Image is not AMD64!" && exit 1)
 
       # Docker Hub Description sync disabled - update manually on Docker Hub if needed
       # Uncomment below and ensure DOCKERHUB_TOKEN has Read & Write permissions
