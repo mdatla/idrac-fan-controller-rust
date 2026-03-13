@@ -77,6 +77,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          # IMPORTANT: AMD64 only - do not add ARM64 (causes broken binaries)
+          # See _docs/DOCKER_IMAGES.md for why multi-platform builds are disabled
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta-pr.outputs.tags }}
@@ -90,6 +92,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          # IMPORTANT: AMD64 only - do not add ARM64 (causes broken binaries)
+          # See _docs/DOCKER_IMAGES.md for why multi-platform builds are disabled
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta-main.outputs.tags }}
