@@ -1,0 +1,46 @@
+# Build :beta image on pull requests
+#
+# Triggers when a PR is opened or updated against main.
+# Pushes maanstr/idrac-fan-controller-rust:beta to Docker Hub
+# so it can be tested on real hardware before merging.
+#
+# Build flags match build-local.sh exactly:
+#   --platform linux/amd64
+#   --provenance=false
+#   no cache
+
+name: "Build Beta"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: maanstr/idrac-fan-controller-rust
+
+jobs:
+  build-beta:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push :beta
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:beta
