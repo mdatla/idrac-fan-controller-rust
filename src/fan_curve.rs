@@ -60,6 +60,10 @@ mod tests {
             check_interval: 60,
             disable_third_party_pcie: false,
             keep_third_party_state_on_exit: false,
+            temp_smoothing_window: 3,
+            min_change_interval: 60,
+            emergency_temp_delta: 10.0,
+            hysteresis_percent: 5,
         }
     }
 

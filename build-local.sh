@@ -17,12 +17,12 @@ else
 fi
 
 echo ""
-echo "📦 Building Docker image..."
+echo "📦 Building Docker image for AMD64..."
 echo "   (This will take 5-10 minutes on first build)"
 echo ""
 
-# Build the image
-docker build -t "${IMAGE_TAG}" .
+# Build the image for AMD64 specifically (matches production servers)
+docker buildx build --platform linux/amd64 -t "${IMAGE_TAG}" --load .
 
 echo ""
 echo "✅ Build complete!"

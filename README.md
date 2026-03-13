@@ -36,7 +36,8 @@ Unlike the original which uses binary on/off (either static 5% or Dell default ~
 ### Additional Benefits
 - ⚡ **Low resource usage** (~0.1% CPU, ~5MB RAM)
 - 🔒 **Auto-restore** Dell default on exit/crash
-- 🎚️ **Hysteresis** prevents oscillation (±2%)
+- 🎚️ **Temperature smoothing** reduces noise from brief spikes
+- 🕐 **Rate limiting** prevents frequent fan speed changes
 - 🛡️ **Type safe** Rust implementation
 - 📊 **Predictable** behavior vs Dell's dynamic mode
 
@@ -71,6 +72,9 @@ services:
       - BASE_TEMP=40
       - CRITICAL_TEMP=70
       - CURVE_STEEPNESS=0.15
+      - TEMP_SMOOTHING_WINDOW=3
+      - MIN_CHANGE_INTERVAL=60
+      - HYSTERESIS_PERCENT=5
 ```
 
 ### Unraid
@@ -102,6 +106,12 @@ See [UNRAID_SETUP.md](_docs/UNRAID_SETUP.md) for detailed instructions.
 - `CRITICAL_TEMP` - Temp for max speed in °C (default: `70`)
 - `CURVE_STEEPNESS` - Curve aggressiveness (default: `0.15`, range: 0.1-0.3)
 
+### Smoothing and Rate Limiting
+- `TEMP_SMOOTHING_WINDOW` - Number of readings to average (default: `3`)
+- `MIN_CHANGE_INTERVAL` - Minimum seconds between fan changes (default: `60`)
+- `EMERGENCY_TEMP_DELTA` - Temp spike that overrides min interval in °C (default: `10`)
+- `HYSTERESIS_PERCENT` - Fan % change needed to trigger adjustment (default: `5`)
+
 ### Other
 - `CHECK_INTERVAL` - Seconds between checks (default: `60`)
 - `RUST_LOG` - Log level: `debug`, `info`, `warn`, `error` (default: `info`)
@@ -131,6 +141,23 @@ CRITICAL_TEMP=70
 CURVE_STEEPNESS=0.15
 ```
 
+### Fan Changes Too Frequent?
+```bash
+CHECK_INTERVAL=10            # Poll every 10 seconds
+TEMP_SMOOTHING_WINDOW=5      # Average last 5 readings (50s of data)
+MIN_CHANGE_INTERVAL=120      # Only change fan speed every 2 minutes
+HYSTERESIS_PERCENT=8         # Require larger % change to trigger
+```
+
+### Want More Responsive Control?
+```bash
+CHECK_INTERVAL=10            # Poll every 10 seconds
+TEMP_SMOOTHING_WINDOW=1      # No smoothing (use current temp)
+MIN_CHANGE_INTERVAL=10       # Allow changes every 10s
+HYSTERESIS_PERCENT=2         # Trigger on smaller changes
+EMERGENCY_TEMP_DELTA=5       # Lower threshold for emergency override
+```
+
 ## 📊 How It Works
 
 **Exponential Curve Formula:**
@@ -140,6 +167,21 @@ For T between BASE_TEMP and CRITICAL_TEMP:
   exp_factor = (1 - e^(-k·normalized·10)) / (1 - e^(-k·10))
   fan_speed = MIN + (MAX - MIN) · exp_factor
 ```
+
+**Temperature Smoothing & Rate Limiting:**
+```
+1. Collect last N temperature readings (TEMP_SMOOTHING_WINDOW)
+2. Calculate fan speed based on average temperature
+3. Only change fan speed if:
+   - Fan % change ≥ HYSTERESIS_PERCENT, AND
+   - (MIN_CHANGE_INTERVAL seconds elapsed OR temp spike ≥ EMERGENCY_TEMP_DELTA)
+```
+
+This approach:
+- **Polls frequently** (configurable, default 60s) for safety monitoring
+- **Smooths temperature** readings to filter brief spikes
+- **Changes fan speed infrequently** (only when needed)
+- **Responds immediately** to dangerous temperature spikes
 
 **Example behavior** (40-70°C range):
 

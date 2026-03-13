@@ -13,6 +13,11 @@ pub struct Config {
     pub check_interval: u64,
     pub disable_third_party_pcie: bool,
     pub keep_third_party_state_on_exit: bool,
+    // New smoothing and rate limiting options
+    pub temp_smoothing_window: usize,
+    pub min_change_interval: u64,
+    pub emergency_temp_delta: f64,
+    pub hysteresis_percent: u8,
 }
 
 impl Config {
@@ -66,6 +71,36 @@ impl Config {
                 .ok()
                 .and_then(|s| s.parse().ok())
                 .unwrap_or(false),
+            
+            // Temperature smoothing window - number of readings to average (default 3)
+            // With 10s polling, 3 readings = 30 seconds of smoothing
+            temp_smoothing_window: env::var("TEMP_SMOOTHING_WINDOW")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(3)
+                .max(1), // Minimum 1 (no smoothing)
+            
+            // Minimum seconds between fan speed changes (default 60)
+            // Prevents frequent adjustments under normal conditions
+            min_change_interval: env::var("MIN_CHANGE_INTERVAL")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(60),
+            
+            // Temperature delta that triggers emergency override (default 10°C)
+            // If temp spikes by this amount, ignore min_change_interval
+            emergency_temp_delta: env::var("EMERGENCY_TEMP_DELTA")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(10.0),
+            
+            // Hysteresis percentage to prevent oscillation (default 5%)
+            // Fan speed must change by at least this much to trigger adjustment
+            hysteresis_percent: env::var("HYSTERESIS_PERCENT")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(5)
+                .min(100), // Cap at 100%
         })
     }
     
